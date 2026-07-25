@@ -53,6 +53,15 @@ carry half-students — that is the file, not an error.
   container formats with shifted race/ethnicity categories; mixing eras can
   read a definitional change as a demographic swing (per [A6]).
 
+## Renders
+
+The public representation of these findings is
+[njschooldata.fyi/reports/statewide-enrollment/](https://njschooldata.fyi/reports/statewide-enrollment/)
+— a draft report presenting [C1]–[C3] with the year table, citing the four
+upstream NJ DOE ZIPs inline and linking back here as the provenance trail.
+The notebook is canonical; the page is a render. Corrections land here
+first, then re-render.
+
 ## Gaps & self-critique
 
 - Statewide totals hide composition: the post-2023 decline could be pre-K

@@ -29,6 +29,12 @@ The whole notebook came from an exchange like this:
 > Three claims verified by recomputation; one question answered; a new one
 > opened — what's driving the recent decline?
 
+The findings now live at
+[njschooldata.fyi/reports/statewide-enrollment/](https://njschooldata.fyi/reports/statewide-enrollment/)
+— a public page that cites the upstream NJ DOE files and links back to this
+notebook as its provenance trail. The notebook is canonical; the page is a
+render.
+
 What that left on disk, in [`nj-schools/`](nj-schools/):
 
 - [`notebook.md`](nj-schools/notebook.md) — the tip, hypotheses with named
