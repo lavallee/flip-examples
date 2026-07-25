@@ -8,10 +8,13 @@ description: NJ DOE fall enrollment 2025-26 (latest published year)
 resource: https://www.nj.gov/education/doedata/enr/enr26/Enrollment_2526.zip
 local: sources/raw/A4/capture.bin
 grade: A
-independence: original
+independence: independent
 freshness: fresh
 status: captured
-actor: agent:claude
+generated:
+  by: agent:claude
+support:
+  seeded: legacy-grade
 ---
 
 # www.nj.gov/education/doedata/enr/enr26/Enrollment_2526.zip

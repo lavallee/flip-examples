@@ -12,7 +12,10 @@ grade: B
 independence: derivative
 freshness: fresh
 status: captured
-actor: agent:claude
+generated:
+  by: agent:claude
+support:
+  seeded: legacy-grade
 ---
 
 # NJ Fall Enrollment data, explained · NJ School Data

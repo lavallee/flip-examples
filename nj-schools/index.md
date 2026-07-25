@@ -1,6 +1,6 @@
 ---
 okf_version: '0.2'
-flip: '0.7'
+flip: '0.8'
 slug: nj-schools
 uid: nb-bxzfkk5w
 title: NJ enrollment dip
@@ -9,11 +9,11 @@ status: active
 created: '2026-07-25'
 updated: '2026-07-25'
 visibility: public
-links:
-  findings: https://njschooldata.fyi/reports/statewide-enrollment/
 renders_public: false
 source_trail_public: true
 citation_rule: public-terminus
+links:
+  findings: https://njschooldata.fyi/reports/statewide-enrollment/
 ---
 
 # NJ enrollment dip

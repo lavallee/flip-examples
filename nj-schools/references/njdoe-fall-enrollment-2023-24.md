@@ -8,10 +8,13 @@ description: NJ DOE fall enrollment 2023-24 (mid-recovery check)
 resource: https://www.nj.gov/education/doedata/enr/enr24/enrollment_2324.zip
 local: sources/raw/A3/capture.bin
 grade: A
-independence: original
+independence: independent
 freshness: fresh
 status: captured
-actor: agent:claude
+generated:
+  by: agent:claude
+support:
+  seeded: legacy-grade
 ---
 
 # www.nj.gov/education/doedata/enr/enr24/enrollment_2324.zip

@@ -9,10 +9,13 @@ description: NJ DOE fall enrollment 2019-20 (pre-pandemic baseline year); one ZI
 resource: https://www.nj.gov/education/doedata/enr/enr20/enrollment_1920.zip
 local: sources/raw/A1/capture.bin
 grade: A
-independence: original
+independence: independent
 freshness: fresh
 status: captured
-actor: agent:claude
+generated:
+  by: agent:claude
+support:
+  seeded: legacy-grade
 ---
 
 # www.nj.gov/education/doedata/enr/enr20/enrollment_1920.zip
