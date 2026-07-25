@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NJ Fall Enrollment data, explained · NJ School Data</title>
+<meta name="description" content="How New Jersey’s Fall Enrollment Reports work, 1998–2026: three file-format eras, the race/ethnicity categories that changed in 2006–07, the gotchas, and the shape of the SQLite database built from them.">
+<link rel="canonical" href="https://njschooldata.fyi/data/fall-enrollment/">
+<link rel="alternate" type="text/markdown" href="/data/ergo/fall-enrollment.md" title="ergo data page (machine-readable)">
+<meta name="theme-color" content="#fafaf7">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:site_name" content="NJ School Data">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NJ Fall Enrollment data, explained">
+<meta property="og:description" content="Three file-format eras, the categories that changed in 2006–07, the gotchas, and the database we built — everything needed to make sense of the state’s enrollment files.">
+<meta property="og:url" content="https://njschooldata.fyi/data/fall-enrollment/">
+<meta property="og:image" content="https://njschooldata.fyi/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="NJ Fall Enrollment data, explained">
+<meta name="twitter:description" content="How New Jersey’s Fall Enrollment Reports work, 1998–2026, and the database built from them.">
+<meta name="twitter:image" content="https://njschooldata.fyi/og.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="/lib/tokens.css">
+<link rel="stylesheet" href="/lib/base.css">
+<link rel="stylesheet" href="/lib/components.css">
+<link rel="stylesheet" href="/lib/brand.css">
+<style>
+  body { font-family: var(--font-sans); color: var(--text); background: var(--bg); margin: 0; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 3rem 1.5rem 1rem; }
+  .crumb { display: inline-block; font-family: var(--font-sans); font-size: 0.82rem; color: var(--text-muted); text-decoration: none; margin-bottom: 1rem; }
+  .crumb:hover { color: var(--accent); }
+  .kicker { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: 0.5rem; }
+  h1 { font-family: var(--font-serif); font-size: 2.5rem; line-height: 1.07; margin: 0 0 0.7rem; letter-spacing: -0.01em; }
+  .dek { font-family: var(--font-prose); font-size: 1.15rem; color: var(--text-muted); line-height: 1.55; max-width: 46rem; }
+  h2 { font-family: var(--font-serif); font-size: 1.62rem; line-height: 1.15; margin: 3rem 0 0.4rem; letter-spacing: -0.01em; }
+  h3 { font-family: var(--font-sans); font-size: 1.0rem; font-weight: 600; margin: 1.6rem 0 0.3rem; }
+  .prose { font-family: var(--font-prose); font-size: 1.06rem; line-height: 1.62; }
+  .prose p { margin: 0.6rem 0 1rem; }
+  .prose a { color: var(--accent); text-underline-offset: 2px; }
+  .prose strong { font-weight: 600; }
+  .toc { font-family: var(--font-sans); font-size: 0.9rem; background: var(--surface); border: 1px solid var(--border);
+         border-radius: 10px; padding: 1rem 1.3rem; margin: 2rem 0 0.5rem; columns: 2; column-gap: 2rem; }
+  .toc a { display: block; color: var(--text-muted); text-decoration: none; padding: 0.18rem 0; }
+  .toc a:hover { color: var(--accent); }
+  table.tbl { border-collapse: collapse; width: 100%; font-family: var(--font-sans); font-size: 0.86rem; margin: 1rem 0 1.4rem; }
+  table.tbl th, table.tbl td { text-align: left; vertical-align: top; padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); }
+  table.tbl th { font-weight: 600; color: var(--text); border-bottom: 2px solid var(--border); }
+  table.tbl td code { font-size: 0.92em; }
+  .mono, code { font-family: var(--font-mono, ui-monospace, monospace); }
+  code { background: var(--surface-inset, rgba(0,0,0,0.05)); padding: 0.08rem 0.32rem; border-radius: 4px; font-size: 0.86em; }
+  pre { background: var(--surface, #fff); border: 1px solid var(--border); border-radius: 9px; padding: 1rem 1.1rem;
+        overflow-x: auto; font-size: 0.82rem; line-height: 1.5; margin: 1rem 0 1.4rem; }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  .callout { border-left: 3px solid var(--accent-muted); background: var(--accent-surface); border-radius: 0 8px 8px 0;
+             padding: 0.8rem 1.1rem; margin: 1.2rem 0; font-family: var(--font-prose); font-size: 1rem; line-height: 1.55; }
+  .lede2 { font-family: var(--font-prose); font-size: 1.2rem; line-height: 1.55; color: var(--text); margin: 0.4rem 0 0.6rem; }
+  .src { font-size: 0.82rem; color: var(--text-dim); font-family: var(--font-sans); }
+</style>
+</head>
+<body>
+<header class="site-hdr">
+  <div class="site-hdr__in">
+    <a class="brand" href="/">
+      <img class="brand__mark" src="/mark.svg" width="26" height="26" alt="">
+      <span class="brand__name">NJ School Data</span>
+    </a>
+    <span class="site-hdr__spacer"></span>
+    <nav class="site-hdr__nav"><a href="/schools/">Schools</a><a href="/budgets/">Budgets</a><a href="/demographic-shift-index/">Explorer</a><a href="/data/">Data</a><a href="/about/">About</a></nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <a class="crumb" href="/data/">← Data library</a>
+  <div class="kicker">Data explainer</div>
+  <h1>New Jersey Fall Enrollment, 1998–2026</h1>
+  <p class="src" style="margin-top:0.5rem">Data through 2025–26 · updated June 2026</p>
+
+  <div class="prose">
+
+  <h2 id="source">The source</h2>
+  <p>The data comes from the <strong>New Jersey Department of Education Fall Enrollment Reports</strong>, published at <a href="https://www.nj.gov/education/doedata/enr/">nj.gov/education/doedata/enr</a>. It’s an annual fall headcount of every student in every public school and district in the state, broken out by grade, race/ethnicity, and economic and program status. The state posts <strong>one ZIP file per school year</strong>, and the series runs from <strong>1998–99 through 2025–26</strong> — 28 years.</p>
+  <p>Each ZIP holds a single file (CSV or Excel) whose name and shape depend on the year. The grain underneath is consistent in spirit — numbers for each school — but the container, the column names, and even <em>which</em> categories exist have all changed over the years. That’s the whole challenge.</p>
+
+  <nav class="toc" aria-label="Contents">
+    <a href="#eras">1 · Three format eras</a>
+    <a href="#categories">2 · What’s counted, and when it changed</a>
+    <a href="#compare">3 · Comparing years fairly</a>
+    <a href="#gotchas">4 · Gotchas we hit the hard way</a>
+    <a href="#database">5 · The database we built</a>
+    <a href="#reproduce">6 · Reproducing it</a>
+    <a href="#validation">7 · How we checked the work</a>
+    <a href="#ergo">8 · The issue registry</a>
+  </nav>
+
+  <h2 id="eras">1 · Three format eras</h2>
+  <p>The state rebuilt the report format twice. There are three distinct generations, and a parser has to detect which one it’s looking at before it can read a row.</p>
+
+  <table class="tbl">
+    <tr><th>Era</th><th>Years</th><th>Container</th><th>Shape</th></tr>
+    <tr>
+      <td><strong>A</strong></td><td>1998–99 → 2008–09 <span class="src">(11 yrs)</span></td>
+      <td>One CSV, <code>STAT_ENR.CSV</code></td>
+      <td>One row per <em>school × program/grade</em>. Race is split into <strong>sex-coded columns</strong> — <code>WHM</code>/<code>WHF</code> (white male/female), <code>BLM</code>/<code>BLF</code>, <code>HIM</code>/<code>HIF</code>, and so on. You sum male+female to get a race count.</td>
+    </tr>
+    <tr>
+      <td><strong>B</strong></td><td>2009–10 → 2018–19 <span class="src">(10 yrs)</span></td>
+      <td>Excel "long" workbook. <strong>2009–10 and 2010–11 are legacy binary <code>.xls</code></strong> (must be converted, e.g. via LibreOffice, before a modern library will open them); 2011–12 onward are <code>.xlsx</code>. Filenames drift: <code>enr.xls</code>, <code>enr.xlsx</code>, <code>EnrollmentReport.xlsx</code>.</td>
+      <td>A long "SQL Results"–style sheet: one row per <em>school × grade × program</em>, with race still as <strong>race × gender</strong> columns. Header naming shifts (<code>WhiteM</code> vs <code>WHM</code>), and some years mislabel the grade column "Total" on every row, keeping the real grade in a separate <code>PRGCODE</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>C</strong></td><td>2019–20 → 2025–26 <span class="src">(7 yrs)</span></td>
+      <td>Modern <code>.xlsx</code> with separate <strong>State / District / School</strong> sheets.</td>
+      <td>One row per <em>school</em>, with plainly-named columns (<code>White</code>, <code>Black</code>, <code>Hispanic</code>…) and a <strong>percentage column next to each count</strong>. Read the count, skip the percent.</td>
+    </tr>
+  </table>
+
+  <p>Two practical notes that cost us time: header rows are <strong>not</strong> always the first row (scan the first several rows for a known label like a district-code column), and the way to tell Era B from Era C apart — both are <code>.xlsx</code> — is to look at the <strong>sheet names</strong>: if there are separate "School" and "District" sheets, it’s Era C; otherwise treat it as an Era B long workbook.</p>
+
+  <h2 id="categories">2 · What’s counted, and when it changed</h2>
+  <p class="lede2">The single most important thing to understand: the race/ethnicity categories are <em>not</em> constant across the 28 years.</p>
+  <p>Four categories run the entire series unchanged in meaning: <strong>White, Black, Hispanic, and Native American</strong>. Asian spans the series but narrows when Pacific Islander becomes separate, and Two or More Races appears at the same break. Here’s exactly where:</p>
+
+  <table class="tbl">
+    <tr><th>Category</th><th>Present</th><th>Note</th></tr>
+    <tr><td>White, Black, Hispanic, Native American</td><td>1998–99 → 2025–26 <span class="src">(all 28 yrs)</span></td><td>Stable throughout.</td></tr>
+    <tr><td>Asian</td><td>1998–99 → 2025–26 <span class="src">(all 28 yrs)</span></td><td>But its <em>meaning</em> narrows in 2006–07 — see below.</td></tr>
+    <tr><td><strong>Native Hawaiian / Pacific Islander</strong></td><td><strong>2006–07</strong> → 2025–26 <span class="src">(20 yrs)</span></td><td>Split out as its own category. Before 2006–07 these students were counted inside <strong>Asian</strong>.</td></tr>
+    <tr><td><strong>Two or More Races</strong></td><td><strong>2006–07</strong> → 2025–26 <span class="src">(20 yrs)</span></td><td>New multiracial category. Before 2006–07 there was no way to be multiracial; students were assigned a single race.</td></tr>
+  </table>
+
+  <div class="callout"><strong>The break is 2006–07.</strong> That year New Jersey moved from a 5-category race scheme to a 7-category one, adding <em>Native Hawaiian/Pacific Islander</em> (carved out of Asian) and <em>Two or More Races</em>. This happened <em>inside</em> the CSV era — it’s a separate axis from the format eras above, and it’s the change that most often trips up year-over-year comparisons.</div>
+
+  <h3>Non-race dimensions phase in at different times, too</h3>
+  <table class="tbl">
+    <tr><th>Dimension</th><th>Coverage</th></tr>
+    <tr><td>Free / reduced-price lunch <span class="src">(economic disadvantage)</span></td><td>Back to 1998–99, but <strong>blank ~2019–20 → 2021–22</strong> in the source.</td></tr>
+    <tr><td>Multilingual / English learners <span class="src">(labeled LEP, then ELL, then ML over time — same dimension)</span></td><td>From ~2005–06.</td></tr>
+    <tr><td>Migrant</td><td>From ~2005–06.</td></tr>
+    <tr><td>Military-connected, Homeless</td><td>Modern only — <strong>2022–23 onward</strong>.</td></tr>
+    <tr><td>Gender <span class="src">(male/female by race)</span></td><td>Exists in the legacy source files (1998–2018) but we do not load it.</td></tr>
+  </table>
+
+  <h2 id="compare">3 · Comparing years fairly</h2>
+  <p>Because 2006–07 reshuffled the categories, the demographic-shift explorer does not put a single index definition across that line. A pre-2006–07 pair uses the five categories collected then; a pair wholly within 2006–07 onward uses all seven. A cross-boundary choice receives no shift and no rank. Folding later groups or setting Two or More Races aside would create a different measure under the same name.</p>
+  <p>Within either reporting scheme, the explorer’s Demographic Shift Index is <code>½ · Σ |Δ share|</code> over that scheme’s complete group set: the share of students who would have to be in a different category to turn the earlier year’s mix into the later one’s.</p>
+
+  <h2 id="gotchas">4 · Gotchas we hit the hard way</h2>
+
+  <h3>Totals vs. grade rows — don’t double-count</h3>
+  <p>In the CSV and long-workbook eras, each school has many rows: an authoritative <strong>"Total" row</strong> plus per-grade rows (and sometimes special-education-by-disability rows that are already <em>inside</em> the Total). Take a school’s total, race, and lunch counts from the <strong>Total row</strong>; take per-grade counts from the grade rows; <strong>never add the two together</strong>. Only fall back to summing grade rows when a Total row is genuinely absent.</p>
+
+  <h3>Per-grade counts don’t always add up to the total — ungraded students</h3>
+  <p>A school’s <strong>per-grade columns can sum to less than its total</strong>, and that is not a parsing error. New Jersey’s headcount <strong>counts ungraded students</strong> — overwhelmingly special-education students who carry no grade level. They are in the total but in no grade. So at <strong>special-services schools</strong> (regional day schools, schools for the deaf, county educational-services commissions) the grade columns sit near zero against a real total, and at ordinary schools with a special-education program the grades fall short by exactly that ungraded population — Vineland Senior High lands around 89% of its total in graded rows, Newark’s Abington Avenue School around 85%. Across the series, roughly <strong>three-quarters to nine-tenths of schools</strong> have grades that sum to the full total in any given year; the rest carry ungraded students.</p>
+  <p>The general rule we use against that shortfall: <strong>trust per-grade detail for a year only when the grades sum to roughly the total</strong> (we require ≥ 90%); otherwise treat that year’s by-grade view as incomplete and fall back to the Total row.</p>
+  <p class="src">This is <em>not</em> a gender artifact, which we checked directly: race in the legacy files is sex-split (<code>WHM</code>/<code>WHF</code>), so picking up only one sex would pull grade sums toward 50% of the total. Fewer than 1% of rows land near there — the male + female counts are being summed correctly.</p>
+
+  <h3>A misspelled column dropped grade 8 for three years</h3>
+  <p>For <strong>2020–21 through 2022–23</strong> the state’s School and District sheets misspelled the grade-8 header as <strong><code>Eight Grade</code></strong> (missing the "h"); it reads <code>Eighth Grade</code> in every other year. A column matcher looking for the correct spelling reads grade 8 as blank — for <em>every school in New Jersey</em>, those three years. It surfaces first at <strong>middle schools</strong>, where grade 8 is the terminal cohort, so a 1,700-student school looks several hundred short; the students were never missing, only their grade-8 cell. The fix is to accept both spellings. It’s a reminder that the column <em>names</em> are as much a moving target as the formats — match them loosely, and reconcile grade sums against the Total to catch a dropped column before it reaches a chart.</p>
+
+  <h3>Fractional counts are real</h3>
+  <p>Shared-time students (those who split attendance between schools) are reported as <strong>halves</strong>. Counts are not always integers — there are roughly 4,400 fractional totals in the series. Preserve them as-is; don’t round on import.</p>
+
+  <h3>Rollup rows masquerading as schools</h3>
+  <p>The files embed aggregate rows. A <strong>school code of <code>999</code></strong>, or a school name containing "TOTAL," is the <em>district</em> total, not a building. A <strong>district code of <code>9999</code></strong>, or names like "County Total" / "State Total," are county/state rollups. Separate the district aggregates into their own table and drop the county/state rollups, or they’ll inflate everything.</p>
+
+  <h3>Suppressed and blank cells</h3>
+  <p>Missing or suppressed values show up as <code>.</code>, <code>*</code>, <code>N</code>, <code>-</code>, or empty. Treat all of them as null, not zero.</p>
+
+  <h3>Codes are the identity; names drift</h3>
+  <p>Normalize the codes — district to 4 digits, school to 3 — and usually key schools on <strong><code>district_code</code> + <code>school_code</code></strong>. Do not assume that pair is infallibly unique: in 1999–00, <code>3530-050</code> labels both New Brunswick High and Rutgers-Douglas Center under different county codes. The explorer quarantines both conflicting rows for that school-year and fails closed on any new collision rather than guessing, summing, or overwriting. County code is not a universal repair because it is unreliable in some legacy files. School <em>names</em>, meanwhile, drift constantly and sometimes change outright. One building in South Orange-Maplewood (district <code>4900</code>, school <code>090</code>) reads:</p>
+  <pre><code>JEFFERSON                        1998-99 → 2009-10
+Jefferson E.S.                   2010-11
+Jefferson Elementary School      2011-12 → 2021-22
+Delia Bolden Elementary School   2022-23 → 2025-26</code></pre>
+  <p>Same code throughout, four names. Track the history (we keep a <code>school_name_history</code> table) so a rename doesn’t read as a school appearing and disappearing.</p>
+
+  <h2 id="database">5 · The database we built</h2>
+  <p>All 28 years normalize into one SQLite file with three tables. Counts are stored as <code>REAL</code> (to preserve the fractional shared-time values), and missing values are <code>NULL</code>.</p>
+
+  <table class="tbl">
+    <tr><th>Table</th><th>Grain</th><th>Rows</th></tr>
+    <tr><td><code>enrollment</code></td><td>one row per <strong>school × year</strong></td><td>~69,300</td></tr>
+    <tr><td><code>district_enrollment</code></td><td>one row per <strong>district × year</strong> (authoritative district total; synthesized from member schools where the source omits it, and flagged)</td><td>~18,400</td></tr>
+    <tr><td><code>school_name_history</code></td><td>one row per <strong>code × name</strong>, with first/last year — catches renames</td><td>—</td></tr>
+  </table>
+  <p>Coverage: <strong>744 districts, ~3,038 schools, all 21 NJ counties</strong> (plus charter / state-operated groupings), 1998–99 → 2025–26.</p>
+
+  <p>The <code>enrollment</code> schema:</p>
+  <pre><code>CREATE TABLE enrollment (
+  school_year TEXT, county_code TEXT, county_name TEXT,
+  district_code TEXT, district_name TEXT, school_code TEXT, school_name TEXT,
+  total REAL,
+  -- race / ethnicity (hawaiian_pi & two_or_more only populated from 2006-07)
+  white REAL, black REAL, hispanic REAL, asian REAL,
+  native_american REAL, hawaiian_pi REAL, two_or_more REAL,
+  -- grades
+  pk REAL, k REAL, g1 REAL, g2 REAL, g3 REAL, g4 REAL, g5 REAL, g6 REAL,
+  g7 REAL, g8 REAL, g9 REAL, g10 REAL, g11 REAL, g12 REAL,
+  -- economic / program
+  free_lunch REAL, reduced_lunch REAL, ml_learners REAL,
+  migrant REAL, military REAL, homeless REAL,
+  PRIMARY KEY (school_year, county_code, district_code, school_code)
+);
+-- district_enrollment mirrors these columns (no school_code/name; adds
+-- synthesized INTEGER), keyed (school_year, county_code, district_code).</code></pre>
+
+  <p>An example — every school’s economic-disadvantage rate for a given year:</p>
+  <pre><code>SELECT school_year, district_name, school_name,
+       ROUND(100.0 * (free_lunch + reduced_lunch) / total, 1) AS pct_frl
+FROM enrollment
+WHERE school_year = '2024-25' AND total >= 100 AND free_lunch IS NOT NULL
+ORDER BY pct_frl DESC;</code></pre>
+
+  <h2 id="reproduce">6 · Reproducing it</h2>
+  <p>A single build script reproduces the whole database from the public source. For each year it: downloads the ZIP from the state archive; detects the era (CSV → Era A; an Excel workbook with School + District sheets → Era C; any other workbook → the Era B long format, converting legacy <code>.xls</code> first); reads each row by matching column names against the known naming variants; applies the Total-row / grade-row / rollup rules above; normalizes codes; and writes the three tables. Everything in sections 1–4 is the spec it implements — given the raw ZIPs, that’s enough to rebuild the same schema from scratch.</p>
+
+  <h2 id="validation">7 · How we checked the work</h2>
+  <p>The pipeline’s output reproduces figures the South Orange-Maplewood district published itself (from its <a href="https://sites.google.com/somsd.k12.nj.us/somsdintegration/presentations">Nov 2025 integration forum</a>), which validates the parse end to end across eras:</p>
+  <table class="tbl">
+    <tr><th>Figure</th><th>Our extract</th><th>District-published</th></tr>
+    <tr><td>SOMSD White %, 1998–99</td><td>43.8%</td><td>44%</td></tr>
+    <tr><td>SOMSD % free/reduced lunch, 1998–99</td><td>17.0%</td><td>16.9%</td></tr>
+    <tr><td>South Mountain White %, 1998–99</td><td>56.1%</td><td>56%</td></tr>
+    <tr><td>SOMSD White %, 2019–20</td><td>55.4%</td><td>55.4%</td></tr>
+    <tr><td>SOMSD % free/reduced lunch, 2024–25</td><td>14.1%</td><td>14.1%</td></tr>
+  </table>
+  <p class="src">Source data: New Jersey Department of Education, Fall Enrollment Reports, 1998–99 through 2025–26 (<a href="https://www.nj.gov/education/doedata/enr/">nj.gov/education/doedata/enr</a>).</p>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+  <!-- ergo:begin -->
+<section class="ergo-panel" id="ergo">
+<style>
+.ergo-panel{margin:3.5rem 0 1rem}
+.ergo-panel h2{margin:0 0 .5rem}
+.ergo-panel .ergo-facts{color:var(--text-muted);font-size:var(--text-sm);margin:.1rem 0 1rem}
+.ergo-panel .ergo-bite{border-left:3px solid var(--accent);padding:.5rem .9rem;margin:0 0 1.25rem;background:var(--accent-surface)}
+.ergo-panel details{border-bottom:1px solid var(--border);padding:.15rem 0}
+.ergo-panel details:first-of-type{border-top:2px solid var(--border-strong)}
+.ergo-panel summary{cursor:pointer;padding:.45rem 0;list-style-position:outside}
+.ergo-panel summary:hover{background:var(--surface-inset)}
+.ergo-panel .ergo-id{font-family:var(--font-mono);font-size:var(--text-xs)}
+.ergo-panel .ergo-tag{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted);white-space:nowrap}
+.ergo-panel .ergo-core{color:var(--accent);font-weight:var(--weight-bold)}
+.ergo-panel .ergo-detail{margin:.2rem 0 .8rem;padding-left:1.1rem;font-size:var(--text-sm)}
+.ergo-panel .ergo-detail p{margin:.35rem 0}
+.ergo-panel .ergo-detail .ergo-k{font-weight:var(--weight-semibold)}
+.ergo-panel h3{margin:1.5rem 0 .4rem;font-size:var(--text-md)}
+.ergo-panel .ergo-log{list-style:none;padding:0;margin:0;font-size:var(--text-sm)}
+.ergo-panel .ergo-log li{margin:.25rem 0}
+.ergo-panel .ergo-log time{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted)}
+.ergo-panel .ergo-links{margin-top:1.25rem;font-size:var(--text-sm);color:var(--text-muted)}
+</style>
+<h2>The issue registry</h2>
+<p>Every dataset behind this site keeps a structured registry of its known issues — the format breaks, suppression rules, entry errors, and definitional traps we hit while building on it — so that the next person (or agent) who works with this data doesn't rediscover them the hard way. Each issue has a stable id, a machine-readable scope (which years, columns, and tables it touches), and an <em>effect</em>: <em>breaks</em> stops a pipeline, <em>corrupts</em> silently wrongs the numbers, <em>misleads</em> invites a wrong reading of right numbers, <em>context</em> is background you must hold to use the data responsibly. Issues marked ★ are core: read them before any use of this data. The registry is maintained in the <a href="https://github.com/lavallee/ergo">ergo format</a> and served in machine-readable form alongside this page — links at the end of this section.</p>
+<p class="ergo-facts">NJ Dept. of Education · 1998-99 → 2025-26 (28 yrs) · source confidence A · updated 2026-07-16 · 18 known issues (2 core)</p>
+<p class="ergo-bite"><strong>The bite:</strong> &#x27;Two or More Races&#x27; and &#x27;Native Hawaiian/Pacific Islander&#x27; don&#x27;t exist before 2006-07 — and the warehouse stores 0, not NULL, for them in every earlier year, so a naive trend line reads a definitional change as a demographic swing.</p>
+<details>
+<summary><span class="ergo-id">era-format-drift</span> <span class="ergo-tag">[breaks · mitigated]</span> A parser must detect the era (CSV, long workbook, or School/District sheets) before it can read a row</summary>
+<div class="ergo-detail">
+<p><span class="ergo-k">Type:</span> format — applies to the whole dataset</p>
+<p><span class="ergo-k">How to spot it:</span> wb.sheetnames / file extension differ across years: a bare .csv (Era A, 1998-99→2008-09), an Excel &#x27;long&#x27; workbook (Era B, 2009-10→2018-19), or an .xlsx with separate School/District/State sheets (Era C, 2019-20→2025-26). parse_year() picks the reader by inspecting the zip contents and workbook shape, never the year label.</p>
+<p><a href="/data/ergo/fall-enrollment.md">Full entry, with the story and the numbers, in the served ergo doc</a>.</p>
+</div>
+</details>
+<details>
+<summary><span class="ergo-id">era-b-file-quirks</span> <span class="ergo-tag">[breaks · mitigated]</span> 2009-10 and 2010-11 are binary .xls (openpyxl can&#x27;t open them directly); the filename inside the zip also isn&#x27;t fixed</summary>
+<div class="ergo-detail">
+<p><span class="ergo-k">Type:</span> format — applies to years: 2009-10 → 2018-19 (binary .xls specifically 2009-10, 2010-11)</p>
+<p><span class="ergo-k">How to spot it:</span> openpyxl.load_workbook raises on the 2009-10/2010-11 files unless converted first; the zip&#x27;s single data file is named enr.xls, enr.xlsx, or EnrollmentReport.xlsx depending on the year, never a fixed name.</p>
+<p><a href="/data/ergo/fall-enrollment.md">Full entry, with the story and the numbers, in the served ergo doc</a>.</p>
+</div>
+</details>
+<details>
+<summary><span class="ergo-id">header-naming-variants</span> <span class="ergo-tag">[breaks · mitigated]</span> Race/sex columns use different header spellings by era (WhiteM vs WHM, and others)</summary>
+<div class="ergo-detail">
+<p><span class="ergo-k">Type:</span> format — applies to years: 1998-99 → 2018-19 (Era A/B; Era C uses plain names like White, Black, Hispanic) · columns: white, black, hispanic, asian, native_american, hawaiian_pi, two_or_more</p>
+<p><span class="ergo-k">How to spot it:</span> RACE_PATTERNS lists every observed header prefix per race×sex column, e.g. white: &#x27;whm&#x27;/&#x27;whitem&#x27; (male), &#x27;whf&#x27;/&#x27;whitef&#x27; (female); two_or_more: &#x27;mum&#x27;/&#x27;2moreracesm&#x27;/&#x27;twoormorem&#x27;. A parser hard-coded to one spelling finds zero matching columns in the other era&#x27;s file — a silent all-null column, not an error.</p>
+<p><a href="/data/ergo/fall-enrollment.md">Full entry, with the story and the numbers, in the served ergo doc</a>.</p>
+</div>
+</details>
+<details>
+<summary><span class="ergo-id">grade-mislabeled-total-prgcode</span> <span class="ergo-tag">[corrupts · mitigated]</span> Grade_Level reads &#x27;Total&#x27; for every row in some Era B years; the real grade is in a separate PRGCODE column</summary>
+<div class="ergo-detail">
+<p><span class="ergo-k">Type:</span> format — applies to years: some years within Era B (2009-10 → 2018-19); exact years not enumerated in the source or in the builder&#x27;s comments · columns: Grade_Level, PRGCODE</p>
+<p><span class="ergo-k">How to spot it:</span> In affected years, every row&#x27;s grade-level column literally reads &#x27;Total&#x27;, with the real grade level carried in PRGCODE instead.</p>
+<p><span class="ergo-k">The misread:</span> Trusting Grade_Level at face value in an affected year either collapses every grade into one bucket, or — because the accumulator treats a &#x27;Total&#x27;-labeled row specially — makes every per-grade row look like the school&#x27;s authoritative Total row.</p>
+<p><a href="/data/ergo/fall-enrollment.md">Full entry, with the story and the numbers, in the served ergo doc</a>.</p>
+</div>
+</details>
+<details>
+<summary><span class="ergo-id">header-row-not-first</span> <span class="ergo-tag">[breaks · mitigated]</span> Some sheets bury the header a few rows down; row 1 can be a title or note</summary>
+<div class="ergo-detail">
+<p><span class="ergo-k">Type:</span> format — applies to years: Era B and C (2009-10 → 2025-26)</p>
+<p><span class="ergo-k">How to spot it:</span> parse_long_workbook scans rows 1-6, and parse_modern&#x27;s hdr() scans rows 1-9, for a row containing a recognizable district-code-style label (&#x27;distid&#x27;/&#x27;districtcode&#x27;/&#x27;dist&#x27;, or &#x27;districtname&#x27;) before treating anything as data.</p>
+<p><a href="/data/ergo/fall-enrollment.md">Full entry, with the story and the numbers, in the served ergo doc</a>.</p>
+</div>
+</details>
+<details>
+<summary><span class="ergo-id">era-b-vs-c-ambiguous</span> <span class="ergo-tag">[breaks · mitigated]</span> File extension alone can&#x27;t distinguish the long-workbook era from the School/District-sheet era — both are .xlsx</summary>
+<div class="ergo-detail">
+<p><span class="ergo-k">Type:</span> format — applies to years: 2009-10 → 2025-26 (era boundary)</p>
+<p><span class="ergo-k">How to spot it:</span> parse_year() checks wb.sheetnames for at least one sheet with &#x27;school&#x27; in its name and one with &#x27;district&#x27; in its name; only then does it call parse_modern (Era C). Otherwise the file is treated as an Era B long workbook.</p>
+<p><a href="/data/ergo/fall-enrollment.md">Full entry, with the story and the numbers, in the served ergo doc</a>.</p>
+</div>
+</details>
+<details>
+<summary><span class="ergo-id">count-percent-adjacency</span> <span class="ergo-tag">[corrupts · mitigated]</span> Modern School/District sheets place a % column immediately after every count column</summary>
+<div class="ergo-detail">
+<p><span class="ergo-k">Type:</span> format — applies to years: 2019-20 → 2025-26 (Era C) · columns: White, Black, Hispanic, Asian, *Percent*, *%*</p>
+<p><span class="ergo-k">How to spot it:</span> hdr() explicitly skips any header cell whose raw value contains &#x27;%&#x27; when building the column index, so the first (count) column of each count/percent pair wins the name.</p>
+<p><span class="ergo-k">The misread:</span> Reading the wrong member of a count/percent pair silently substitutes a 0-100 percentage for a headcount, or vice versa, with no type error to flag it.</p>
+<p><a href="/data/ergo/fall-enrollment.md">Full entry, with the story and the numbers, in the served ergo doc</a>.</p>
+</div>
+</details>
+<details>
+<summary><span class="ergo-id">grade8-misspelled-header</span> <span class="ergo-tag">[corrupts · mitigated]</span> The grade-8 header reads &#x27;Eight Grade&#x27; (missing the &#x27;h&#x27;) in 2020-21 through 2022-23</summary>
+<div class="ergo-detail">
+<p><span class="ergo-k">Type:</span> format — applies to years: 2020-21, 2021-22, 2022-23 · columns: Eighth Grade, Eight Grade, g8</p>
+<p><span class="ergo-k">How to spot it:</span> The School and District sheets header grade 8 as &#x27;Eight Grade&#x27; in 2020-21, 2021-22, and 2022-23; every other year — including the correction in 2023-24 — spells it &#x27;Eighth Grade.&#x27;</p>
+<p><span class="ergo-k">The misread:</span> A column matcher looking only for the correct spelling reads every NJ school&#x27;s grade-8 enrollment as blank for these three years — most visible at middle schools, where grade 8 is the terminal cohort.</p>
+<p><a href="/data/ergo/fall-enrollment.md">Full entry, with the story and the numbers, in the served ergo doc</a>.</p>
+</div>
+</details>
+<details>
+<summary><span class="ergo-id">race-category-scope-change</span> <span class="ergo-core" title="core issue — read before any use">★</span> <span class="ergo-tag">[misleads · open]</span> &#x27;Two or More Races&#x27; and &#x27;Native Hawaiian/Pacific Islander&#x27; didn&#x27;t exist before 2006-07; Asian&#x27;s meaning narrows that year</summary>
+<div class="ergo-detail">
+<p><span class="ergo-k">Type:</span> coding — applies to years: all (break at 2006-07) · columns: hawaiian_pi, two_or_more, asian</p>
+<p><span class="ergo-k">How to spot it:</span> White, Black, Hispanic, and Native American run all 28 years unchanged. Native Hawaiian/Pacific Islander and Two or More Races both first appear in 2006-07; before that NJ used a 5-category scheme and Pacific Islander students were counted inside Asian.</p>
+<p><span class="ergo-k">The misread:</span> Comparing a pre-2006-07 Asian share to a post-2006-07 Asian share as the same universe — pre-2006-07 Asian includes Pacific Islander, post-2006-07 doesn&#x27;t. Comparing raw &#x27;Two or More&#x27; shares across the 2006-07 line compares a real population to a structural zero. The demographic-shift explorer therefore calculates only pre/pre five-category pairs or post/post seven-category pairs; it does not assign a shift or rank across the reporting boundary.</p>
+<p><a href="/data/ergo/fall-enrollment.md">Full entry, with the story and the numbers, in the served ergo doc</a>.</p>
+</div>
+</details>
+<details>
+<summary><span class="ergo-id">pre-2006-race-fields-zero</span> <span class="ergo-core" title="core issue — read before any use">★</span> <span class="ergo-tag">[corrupts · open]</span> The warehouse stores 0 (not NULL) for hawaiian_pi/two_or_more in every year before the categories existed in the source</summary>
+<div class="ergo-detail">
+<p><span class="ergo-k">Type:</span> coding — applies to years: 1998-99 → 2005-06 (before Two or More / Pacific Islander existed in the source) · tables: enrollment, district_enrollment · columns: hawaiian_pi, two_or_more</p>
+<p><span class="ergo-k">How to spot it:</span> SELECT any pre-2006-07 school year: two_or_more and hawaiian_pi read 0 for every row while the five original race columns are populated — a structural zero, indistinguishable from a real zero unless you know the category didn&#x27;t exist. Verified against the loader with a synthetic 1998-99-shaped file (see Validation).</p>
+<p><span class="ergo-k">The misread:</span> AVG(two_or_more / total) computed across the full 28-year series reads the pre-2006-07 years as &#x27;0% multiracial&#x27; rather than &#x27;category did not exist&#x27; — silently dragging any long-run multiracial-share trend toward zero. A NULL-aware filter (WHERE two_or_more IS NOT NULL) does not catch these rows, because they aren&#x27;t NULL.</p>
+<p><a href="/data/ergo/fall-enrollment.md">Full entry, with the story and the numbers, in the served ergo doc</a>.</p>
+</div>
+</details>
+<details>
+<summary><span class="ergo-id">total-vs-grade-double-count</span> <span class="ergo-tag">[corrupts · mitigated]</span> Era A/B files carry an authoritative Total row per school plus separate per-grade (and sometimes special-ed) rows</summary>
+<div class="ergo-detail">
+<p><span class="ergo-k">Type:</span> measurement — applies to years: 1998-99 → 2018-19 (Era A/B, row-per-grade files) · tables: enrollment, district_enrollment</p>
+<p><span class="ergo-k">How to spot it:</span> Era A/B files have one Total-labeled row per school plus per-grade rows, and sometimes special-ed-by-disability rows that are already folded into Total.</p>
+<p><span class="ergo-k">The misread:</span> Summing every row for a school (Total + grade rows + special-ed rows) roughly doubles or triples its reported enrollment.</p>
+<p><a href="/data/ergo/fall-enrollment.md">Full entry, with the story and the numbers, in the served ergo doc</a>.</p>
+</div>
+</details>
+<details>
+<summary><span class="ergo-id">ungraded-students-shortfall</span> <span class="ergo-tag">[context · open]</span> A school&#x27;s pk..g12 columns can sum to less than its total; the gap is ungraded (mostly special-ed) students, not a parsing error</summary>
+<div class="ergo-detail">
+<p><span class="ergo-k">Type:</span> definitional — applies to years: all · columns: pk, k, g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, total · entities: special-services schools, and any school with a sizable special-ed program</p>
+<p><span class="ergo-k">How to spot it:</span> Roughly three-quarters to nine-tenths of schools have grades summing to the full total in a given year; special-services schools (regional day schools, schools for the deaf, county ed-services commissions) can sit near zero graded against a real total. Public explainer&#x27;s examples: Vineland Senior High ~89% of total in graded rows, Newark&#x27;s Abington Avenue School ~85%.</p>
+<p><span class="ergo-k">The misread:</span> Treating (total - sum of grades) as a data-quality defect, or silently redistributing the gap across grades to make the columns add up. The public explainer&#x27;s own working rule: trust per-grade detail for a year only when grades sum to &gt;=90% of total; otherwise fall back to the Total row.</p>
+<p><a href="/data/ergo/fall-enrollment.md">Full entry, with the story and the numbers, in the served ergo doc</a>.</p>
+</div>
+</details>
+<details>
+<summary><span class="ergo-id">fractional-shared-time-counts</span> <span class="ergo-tag">[corrupts · mitigated]</span> Counts are not always integers — shared-time students split between schools are reported as halves</summary>
+<div class="ergo-detail">
+<p><span class="ergo-k">Type:</span> measurement — applies to years: all · columns: total, white, black, hispanic, asian, native_american, hawaiian_pi, two_or_more, pk, k, g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12</p>
+<p><span class="ergo-k">How to spot it:</span> num() parses to float and only rounds to a whole number when the value already is one (int(f) if f == int(f) else round(f, 1)); roughly 4,400 fractional totals exist across the series.</p>
+<p><span class="ergo-k">The misread:</span> Casting a count column to int, or assuming COUNT-like integer semantics, truncates legitimate shared-time halves — a student split between two schools is reported as 0.5 at each.</p>
+<p><a href="/data/ergo/fall-enrollment.md">Full entry, with the story and the numbers, in the served ergo doc</a>.</p>
+</div>
+</details>
+<details>
+<summary><span class="ergo-id">rollup-rows-as-schools</span> <span class="ergo-tag">[corrupts · mitigated]</span> School code 999 or a &#x27;TOTAL&#x27; name is the district&#x27;s own aggregate row; district code 9999 or a county/state name is a rollup, not a real district</summary>
+<div class="ergo-detail">
+<p><span class="ergo-k">Type:</span> entry — applies to years: all · columns: school_code, school_name, district_code, district_name</p>
+<p><span class="ergo-k">How to spot it:</span> A row with school_code &#x27;999&#x27;, or a school_name containing &#x27;TOTAL&#x27;, is the district&#x27;s own aggregate row, not a building. A row with district_code &#x27;9999&#x27;, or a district_name of &#x27;County Total&#x27;/&#x27;State Total&#x27;/&#x27;NJ Total&#x27;, is a county/state rollup.</p>
+<p><span class="ergo-k">The misread:</span> Loading these rows as ordinary schools or districts double-counts every student in that district/county/state on top of the real building- and district-level rows.</p>
+<p><a href="/data/ergo/fall-enrollment.md">Full entry, with the story and the numbers, in the served ergo doc</a>.</p>
+</div>
+</details>
+<details>
+<summary><span class="ergo-id">suppressed-blank-cells</span> <span class="ergo-tag">[corrupts · mitigated]</span> Missing/suppressed values show up as sentinel strings (&#x27;.&#x27;, &#x27;*&#x27;, &#x27;N&#x27;, &#x27;-&#x27;), not empty cells</summary>
+<div class="ergo-detail">
+<p><span class="ergo-k">Type:</span> suppression — applies to years: all · columns: *</p>
+<p><span class="ergo-k">How to spot it:</span> num() treats &#x27;.&#x27;, &#x27;*&#x27;, &#x27;N&#x27;, &#x27;-&#x27;, empty string, and any string made only of dots/spaces as missing, returning None rather than parsing it as zero or raising ValueError.</p>
+<p><span class="ergo-k">The misread:</span> Coercing a suppressed cell to 0 (rather than NULL) understates a school&#x27;s count in any SUM/AVG that doesn&#x27;t explicitly filter nulls, and makes a genuinely-zero school indistinguishable from a suppressed one.</p>
+<p><a href="/data/ergo/fall-enrollment.md">Full entry, with the story and the numbers, in the served ergo doc</a>.</p>
+</div>
+</details>
+<details>
+<summary><span class="ergo-id">school-identity-vs-name-drift</span> <span class="ergo-tag">[corrupts · mitigated]</span> School names change, and even (district_code, school_code) has one known school-year collision that must be quarantined</summary>
+<div class="ergo-detail">
+<p><span class="ergo-k">Type:</span> linkage — applies to years: all · tables: enrollment, district_enrollment, school_name_history · columns: school_name, district_code, school_code, county_code</p>
+<p><span class="ergo-k">How to spot it:</span> district_code (zfill 4) and school_code (zfill 3) are normalized in every parser and are normally stable across a school&#x27;s history. SOMSD school 090 carries four names across one code. But 1999-00 has two semantically conflicting 3530-050 rows under different county codes: New Brunswick High and Rutgers-Douglas Center.</p>
+<p><span class="ergo-k">The misread:</span> Joining by school_name reads a renamed school as several entities; treating (district_code, school_code, school_year) as infallibly unique silently overwrites one side of the 1999-00 3530-050 collision; including county_code in a general join can still drop matches where that field is unreliable. Quarantine the known collision and fail closed on any new one.</p>
+<p><a href="/data/ergo/fall-enrollment.md">Full entry, with the story and the numbers, in the served ergo doc</a>.</p>
+</div>
+</details>
+<details>
+<summary><span class="ergo-id">synthesized-district-rows</span> <span class="ergo-tag">[context · mitigated]</span> district_enrollment mixes source-published district totals with rows we synthesized by summing member schools, distinguished by a synthesized flag</summary>
+<div class="ergo-detail">
+<p><span class="ergo-k">Type:</span> measurement — applies to years: all · tables: district_enrollment · columns: synthesized</p>
+<p><span class="ergo-k">How to spot it:</span> synth_missing_districts() sums NUMERIC columns across a district&#x27;s member schools for any (county_code, district_code) with no district-level row already present that year, and writes synthesized=1; source-published district rows carry synthesized=0.</p>
+<p><span class="ergo-k">The misread:</span> Treating every district_enrollment row as the state&#x27;s own published district total. A synthesized row is our sum of that year&#x27;s member schools and can disagree slightly with a source total that used its own rounding or suppression, in a year the source happens to also publish one.</p>
+<p><a href="/data/ergo/fall-enrollment.md">Full entry, with the story and the numbers, in the served ergo doc</a>.</p>
+</div>
+</details>
+<details>
+<summary><span class="ergo-id">non-race-dimension-coverage-phase-in</span> <span class="ergo-tag">[context · open]</span> Non-race dimensions don&#x27;t share one coverage window: FRL gaps 2019-20→2021-22, ML/migrant start ~2005-06, military/homeless start 2022-23</summary>
+<div class="ergo-detail">
+<p><span class="ergo-k">Type:</span> coverage — applies to years: varies by column — see detection · columns: free_lunch, reduced_lunch, ml_learners, migrant, military, homeless</p>
+<p><span class="ergo-k">How to spot it:</span> free_lunch/reduced_lunch run back to 1998-99 but are blank roughly 2019-20 → 2021-22 in the source; ml_learners and migrant start from roughly 2005-06; military and homeless start only in 2022-23.</p>
+<p><span class="ergo-k">The misread:</span> Charting a district&#x27;s free/reduced-lunch rate straight through 2019-20→2021-22, or its ML/migrant/military/homeless counts back to before their coverage began, reads a source reporting gap as a demographic collapse to zero — though because these come out NULL rather than 0 (fall-enrollment/suppressed-blank-cells), a chart that doesn&#x27;t skip nulls will show a gap, not a false zero, if it&#x27;s built correctly.</p>
+<p><a href="/data/ergo/fall-enrollment.md">Full entry, with the story and the numbers, in the served ergo doc</a>.</p>
+</div>
+</details>
+<h3>Changelog</h3>
+<ul class="ergo-log">
+<li><time>2026-07-10</time> — Page created in ergo format: 18 issues registered from the public explainer, the builder, and the SOMA sources ledger — including the new discovery that pre-2006-07 rows store 0 (not NULL) for hawaiian_pi/two_or_more, verified against the builder.</li>
+<li><time>2026-07-16</time> — Aligned the demographic-shift contract with the 2006-07 reporting break: pre/pre pairs use five categories, post/post pairs use seven, and cross-boundary pairs receive no shift or rank. Recorded the 1999-00 3530-050 school-ID collision and the requirement to quarantine both conflicting rows rather than guess or overwrite.</li>
+</ul>
+<p class="ergo-links">Machine-readable: <a href="/data/ergo/fall-enrollment.md">this page as an ergo doc</a> · <a href="/data/ergo/index.json">all datasets (index.json)</a> · format: <a href="https://github.com/lavallee/ergo">ergo</a> · implementation: <a href="https://github.com/lavallee/njschooldata">source repo</a></p>
+</section>
+<!-- ergo:end -->
+
+  <p class="src" style="margin-top:2rem;padding-top:1rem;border-top:1px solid var(--border)">The text on this page was generated by Claude Opus 4.8, working as part of a stack of tools created by <a href="https://lyra-tk.com">Lyra Forge</a>.</p>
+
+  </div>
+</div>
+
+
+<footer class="site-ftr">
+  <div class="site-ftr__in">
+    <a class="site-ftr__brand" href="/">NJ School Data</a>
+    <span class="site-ftr__spacer"></span>
+    <nav class="site-ftr__nav"><a href="/schools/">Schools</a><a href="/budgets/">Budgets</a><a href="/demographic-shift-index/">Explorer</a><a href="/data/">Data</a><a href="/about/">About</a></nav>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,8 @@
+# flip workspace table — maintained by `flip ws`; hand edits are read but
+# comments are not preserved on rewrite.
+
+[workspace]
+version = "0.1"
+
+[notebooks]
+nj-schools = "nj-schools"
