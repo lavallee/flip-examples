@@ -1,5 +1,9 @@
 # Update Log
 
+## 2026-07-26
+
+* **Update**: Re-graded all five sources tuple-first (0.12): the four DOE workbooks derive A — independent official records with an unusually well-defined base (the intro sheets define the count precisely, half-students included), base_defined: true recorded with receipts. The explainer derives B (independent synthesis with method). Claim corroboration recomputed under the new bar. _(agent:claude)_
+
 ## 2026-07-25
 
 * **Update**: Published the public render of this notebook's findings: https://njschooldata.fyi/reports/statewide-enrollment/ — a draft report on njschooldata.fyi presenting C1-C3 with the stats table, citing the four upstream NJ DOE ZIPs inline and linking back here as the provenance trail. The page is a render (SPEC: canonical notebook, derived renders) — corrections flow to this notebook first, then re-render. _(agent:claude)_

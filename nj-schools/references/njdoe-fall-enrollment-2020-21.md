@@ -14,7 +14,12 @@ status: captured
 generated:
   by: agent:claude
 support:
-  seeded: legacy-grade
+  basis: official-record
+  n: 'statewide census: all NJ public districts (~700) and schools (~3,000)'
+  method: 'NJ DOE fall snapshot: PreK-12 enrolled on the 15th school day of October; shared-time
+    vocational counted 0.5 (defined in the file''s own intro sheet)'
+  vintage: 2020-10
+  base_defined: true
 ---
 
 # www.nj.gov/education/doedata/enr/enr21/enrollment_2021.zip

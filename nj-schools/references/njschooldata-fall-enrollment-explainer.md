@@ -9,13 +9,18 @@ description: 'njschooldata.fyi explainer for the NJ DOE fall-enrollment dataset:
 resource: https://njschooldata.fyi/data/fall-enrollment/
 local: sources/raw/A6/capture.html
 grade: B
-independence: derivative
+independence: independent
 freshness: fresh
 status: captured
 generated:
   by: agent:claude
 support:
-  seeded: legacy-grade
+  basis: synthesis
+  method: 'longitudinal analysis of 28 years of DOE enrollment files: container formats, category
+    breaks, parsing caveats'
+  vintage: 2026-07
+notes: 'Not a republisher: original analysis of the primary files. Context for format decisions,
+  never corroboration for enrollment counts.'
 ---
 
 # NJ Fall Enrollment data, explained · NJ School Data
