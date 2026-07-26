@@ -6,3 +6,4 @@ version = "0.1"
 
 [notebooks]
 nj-schools = "nj-schools"
+rag-hallucination-lit = "rag-hallucination-lit"

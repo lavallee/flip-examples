@@ -1,0 +1,3 @@
+# Questions
+
+* [Q1](do-retrieval-augmentation-factuality-gains-persist-for-post.md) - Do retrieval-augmentation factuality gains persist for post-2024 frontier models, whose parametric knowledge is far stronger than the 2022-2023 models these st…

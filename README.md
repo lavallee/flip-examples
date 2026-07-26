@@ -53,6 +53,36 @@ What that left on disk, in [`nj-schools/`](nj-schools/):
   won't tell you about: a stale intro sheet, and silent revision of a
   published ZIP).
 
+## rag-hallucination-lit — "review the literature on retrieval and hallucination"
+
+The first notebook built with an **outcome kind**: `flip new
+rag-hallucination-lit --kind "literature review"` — the plain-language
+phrase resolves to the `lit-review` kind, whose collection contract the
+doctor enforces from day one. What that discipline produced, in
+[`rag-hallucination-lit/`](rag-hallucination-lit/):
+
+- [`criteria.md`](rag-hallucination-lit/criteria.md) — inclusion/exclusion
+  **frozen before the first search** (the contract's
+  unrecoverable-by-construction entry, done prospectively).
+- [`search-log.md`](rag-hallucination-lit/search-log.md) and
+  [`flow.md`](rag-hallucination-lit/flow.md) — the denominator: 2,600+
+  identified, 31 examined, 7 advanced, 4 excluded with typed reasons,
+  3 included. The canonical Shuster 2021 paper is excluded **on license
+  alone** (this notebook redistributes its captured PDFs, so only
+  CC-licensed papers can be included) — recorded as negative evidence,
+  not erased.
+- [`review.md`](rag-hallucination-lit/review.md) — edition e1: the effect
+  is consistent (retrieval improved every reported metric, including a
+  2.7B model beating vanilla GPT-3 175B on long-tail QA), the construct
+  is not (three papers, three different operationalizations of
+  "hallucination"), and retrieval hurt on ~10% of questions.
+- Every included source: hashed CC-BY PDF, support tuple (independent ·
+  measured · base-defined), screening decision and extraction fields in
+  frontmatter. The synthesis claim is verified through the corroboration
+  bar at 3; the claim ledger also shows ten burned claim ids from the
+  agent's own YAML mistakes — ids are never reused, and the record keeps
+  the stumbles.
+
 Also featured: [flip's own website notebook](https://github.com/lavallee/flip/tree/main/website/notebook)
 — the notebook backing every claim on the flip site, including a superseded
 claim kept on the record when OKF moved from v0.1 to v0.2.
