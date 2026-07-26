@@ -83,6 +83,19 @@ doctor enforces from day one. What that discipline produced, in
   agent's own YAML mistakes — ids are never reused, and the record keeps
   the stumbles.
 
+## nj-enrollment-forward — "what should we watch?"
+
+The companion to nj-schools, built with the `forward-set` kind (flip
+0.13's Forecast class): the backward notebook proved what enrollment
+*did*; this one commits to what the same watched surface will show next.
+Three dated forecasts with probabilities, confidence, annulment
+conditions, and resolver ladders — including one that resolves by
+re-fetching the state's ZIP and comparing bytes against nj-schools'
+captured hash. The [naive baseline](nj-enrollment-forward/baseline.md) is
+declared before anything resolves; the record starts honestly at zero.
+Claims carry grades, never probabilities; forecasts carry probabilities,
+never grades — and `flip doctor` enforces it.
+
 Also featured: [flip's own website notebook](https://github.com/lavallee/flip/tree/main/website/notebook)
 — the notebook backing every claim on the flip site, including a superseded
 claim kept on the record when OKF moved from v0.1 to v0.2.
