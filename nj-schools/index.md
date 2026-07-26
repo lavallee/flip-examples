@@ -12,6 +12,8 @@ visibility: public
 renders_public: false
 source_trail_public: true
 citation_rule: public-terminus
+disciplines:
+- lineage@1
 links:
   findings: https://njschooldata.fyi/reports/statewide-enrollment/
 ---
@@ -23,4 +25,4 @@ links:
 * [Decisions](decisions/) - 1 recorded decision
 * [Questions](questions/) - 2 questions, 1 open
 * [Sessions](sessions/) - 1 work session
-* [Update Log](log.md) - 4 logged events, newest first
+* [Update Log](log.md) - 5 logged events, newest first

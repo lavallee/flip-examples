@@ -12,6 +12,9 @@ visibility: public
 renders_public: false
 source_trail_public: true
 citation_rule: public-terminus
+disciplines:
+- lineage@1
+- systematic-screening@0.1
 ---
 
 # Does retrieval augmentation reduce hallucination?
@@ -20,4 +23,4 @@ citation_rule: public-terminus
 * [Claims](claims/) - 5 claims with status and citations
 * [Questions](questions/) - 1 question, 1 open
 * [Sessions](sessions/) - 1 work session
-* [Update Log](log.md) - 2 logged events, newest first
+* [Update Log](log.md) - 4 logged events, newest first

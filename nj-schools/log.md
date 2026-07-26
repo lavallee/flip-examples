@@ -2,6 +2,7 @@
 
 ## 2026-07-26
 
+* **Update**: Declared the notebook's disciplines in the manifest — the standard this work is held to now travels with the bundle. _(agent:claude)_
 * **Update**: Re-graded all five sources tuple-first (0.12): the four DOE workbooks derive A — independent official records with an unusually well-defined base (the intro sheets define the count precisely, half-students included), base_defined: true recorded with receipts. The explainer derives B (independent synthesis with method). Claim corroboration recomputed under the new bar. _(agent:claude)_
 
 ## 2026-07-25

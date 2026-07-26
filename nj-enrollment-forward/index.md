@@ -12,9 +12,13 @@ visibility: public
 renders_public: false
 source_trail_public: true
 citation_rule: public-terminus
+disciplines:
+- lineage@1
+- forecasting@1
 ---
 
 # NJ enrollment, cast forward
 
 * [Forecasts](forecasts/) - 3 forecast pages with dates and scoring
 * [Sessions](sessions/) - 1 work session
+* [Update Log](log.md) - 1 logged event, newest first
