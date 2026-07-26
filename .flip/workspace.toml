@@ -5,5 +5,6 @@
 version = "0.1"
 
 [notebooks]
+nj-enrollment-forward = "nj-enrollment-forward"
 nj-schools = "nj-schools"
 rag-hallucination-lit = "rag-hallucination-lit"
