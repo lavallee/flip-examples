@@ -7,7 +7,7 @@ title: NJ enrollment dip
 kind: scout
 status: active
 created: '2026-07-25'
-updated: '2026-07-26'
+updated: '2026-07-28'
 visibility: public
 renders_public: false
 source_trail_public: true

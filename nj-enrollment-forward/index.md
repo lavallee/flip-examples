@@ -7,7 +7,7 @@ title: NJ enrollment, cast forward
 kind: forward-set
 status: active
 created: '2026-07-26'
-updated: '2026-07-26'
+updated: '2026-07-28'
 visibility: public
 renders_public: false
 source_trail_public: true

@@ -26,7 +26,12 @@ horizon: '2026'
 opened: '2026-07-26'
 freeze: '2026-07-26'
 status: open
-updates: []
+updates:
+- at: '2026-07-28T13:44:41Z'
+  note: 'Mid-window observation 2026-07-28 via flip source recheck on nj-schools A4: the published
+    2025-26 ZIP is byte-identical to our 2026-07-25 capture (unchanged). No revision yet;
+    probability held.'
+  by: agent:claude
 generated:
   by: agent:claude
   at: '2026-07-26T01:01:28Z'

@@ -20,6 +20,7 @@ support:
     vocational counted 0.5 (defined in the file''s own intro sheet)'
   vintage: 2025-10
   base_defined: true
+last_checked: '2026-07-28T13:44:30Z'
 ---
 
 # www.nj.gov/education/doedata/enr/enr26/Enrollment_2526.zip
